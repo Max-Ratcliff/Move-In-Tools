@@ -1,0 +1,27 @@
+{
+  "name": "cart-checkout-tracker",
+  "version": "1.0.0",
+  "description": "A simple web interface for tracking cart checkouts with 30-minute alerts",
+  "main": "index.html",
+  "scripts": {
+    "dev": "live-server --port=3000 --host=localhost --open=/",
+    "start": "live-server --port=3000 --host=localhost",
+    "build": "echo 'Build complete - static files ready for deployment'",
+    "preview": "live-server --port=4173 --host=localhost"
+  },
+  "keywords": [
+    "cart",
+    "checkout",
+    "tracker",
+    "staff",
+    "management"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

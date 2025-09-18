@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="format-detection" content="telephone=no">
+    <title>Cart & Parking Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Cart & Parking Tracker</h1>
+
+        <div class="forms-container">
+            <div class="checkout-form">
+                <h2>Check Out Cart</h2>
+                <form id="checkoutForm">
+                    <div class="form-group">
+                        <label for="cartNumber">Cart Number:</label>
+                        <input type="text" id="cartNumber" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phoneNumber">Phone Number:</label>
+                        <input type="tel" id="phoneNumber" required>
+                    </div>
+                    <button type="submit">Check Out Cart</button>
+                </form>
+            </div>
+
+            <div class="checkout-form">
+                <h2>Issue Parking Permit</h2>
+                <form id="parkingForm">
+                    <div class="form-group">
+                        <label for="licensePlate">License Plate:</label>
+                        <input type="text" id="licensePlate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="parkingPhone">Phone Number:</label>
+                        <input type="tel" id="parkingPhone" required>
+                    </div>
+                    <button type="submit">Issue Permit</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="checked-out-carts">
+            <h2>Checked Out Carts</h2>
+            <div id="cartsList"></div>
+        </div>
+
+        <div class="checked-out-carts">
+            <h2>Active Parking Permits</h2>
+            <div id="parkingList"></div>
+        </div>
+
+        <div class="alerts" id="alerts">
+            <!-- Alert messages will appear here -->
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
