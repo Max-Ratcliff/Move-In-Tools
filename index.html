@@ -13,13 +13,29 @@
     <div class="container">
         <h1>Cart & Parking Tracker</h1>
 
+        <!-- View Toggle Controls -->
+        <div class="view-toggle">
+            <button class="toggle-btn active" data-view="carts">
+                <span class="toggle-icon">&#x1F6D2;</span>
+                Carts
+            </button>
+            <button class="toggle-btn" data-view="parking">
+                <span class="toggle-icon">&#x1F697;</span>
+                Parking
+            </button>
+        </div>
+
         <div class="forms-container">
-            <div class="checkout-form">
+            <div class="checkout-form" id="cartForm">
                 <h2>Check Out Cart</h2>
                 <form id="checkoutForm">
                     <div class="form-group">
                         <label for="cartNumber">Cart Number:</label>
                         <input type="text" id="cartNumber" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentId">Student ID:</label>
+                        <input type="text" id="studentId" required>
                     </div>
                     <div class="form-group">
                         <label for="phoneNumber">Phone Number:</label>
@@ -29,9 +45,9 @@
                 </form>
             </div>
 
-            <div class="checkout-form">
+            <div class="checkout-form" id="parkingForm">
                 <h2>Issue Parking Permit</h2>
-                <form id="parkingForm">
+                <form id="parkingFormElement">
                     <div class="form-group">
                         <label for="licensePlate">License Plate:</label>
                         <input type="text" id="licensePlate" required>
@@ -45,12 +61,12 @@
             </div>
         </div>
 
-        <div class="checked-out-carts">
+        <div class="checked-out-carts" id="cartsSection">
             <h2>Checked Out Carts</h2>
             <div id="cartsList"></div>
         </div>
 
-        <div class="checked-out-carts">
+        <div class="checked-out-carts" id="parkingSection">
             <h2>Active Parking Permits</h2>
             <div id="parkingList"></div>
         </div>

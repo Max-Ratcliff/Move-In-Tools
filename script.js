@@ -5,6 +5,7 @@ class CartTracker {
         this.updateInterval = null;
         this.alertedCarts = new Set();
         this.alertedPermits = new Set();
+        this.currentView = 'carts';
         this.init();
     }
 
@@ -14,23 +15,71 @@ class CartTracker {
         this.startTimer();
         this.renderCarts();
         this.renderParking();
+        this.updateViewToggle();
     }
 
     bindEvents() {
         const cartForm = document.getElementById('checkoutForm');
-        const parkingForm = document.getElementById('parkingForm');
+        const parkingForm = document.getElementById('parkingFormElement');
 
         cartForm.addEventListener('submit', (e) => this.handleCheckout(e));
         parkingForm.addEventListener('submit', (e) => this.handleParkingIssue(e));
+
+        // Toggle view buttons
+        const toggleButtons = document.querySelectorAll('.toggle-btn');
+        toggleButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => this.handleViewToggle(e));
+        });
+    }
+
+    handleViewToggle(e) {
+        const view = e.currentTarget.dataset.view;
+        this.currentView = view;
+
+        // Update button states
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        e.currentTarget.classList.add('active');
+
+        this.updateViewToggle();
+    }
+
+    updateViewToggle() {
+        const cartForm = document.getElementById('cartForm');
+        const parkingForm = document.getElementById('parkingForm');
+        const cartsSection = document.getElementById('cartsSection');
+        const parkingSection = document.getElementById('parkingSection');
+        const formsContainer = document.querySelector('.forms-container');
+
+        // Hide all sections first
+        [cartForm, parkingForm, cartsSection, parkingSection].forEach(el => {
+            el.style.display = 'none';
+        });
+
+        // Show based on current view and add appropriate class
+        switch(this.currentView) {
+            case 'carts':
+                cartForm.style.display = 'block';
+                cartsSection.style.display = 'block';
+                formsContainer.classList.add('single-form');
+                break;
+            case 'parking':
+                parkingForm.style.display = 'block';
+                parkingSection.style.display = 'block';
+                formsContainer.classList.add('single-form');
+                break;
+        }
     }
 
     handleCheckout(e) {
         e.preventDefault();
 
         const cartNumber = document.getElementById('cartNumber').value.trim();
+        const studentId = document.getElementById('studentId').value.trim();
         const phoneNumber = document.getElementById('phoneNumber').value.trim();
 
-        if (!cartNumber || !phoneNumber) {
+        if (!cartNumber || !studentId || !phoneNumber) {
             alert('Please fill in all fields');
             return;
         }
@@ -43,6 +92,7 @@ class CartTracker {
 
         const cart = {
             number: cartNumber,
+            studentId: studentId,
             phoneNumber: phoneNumber,
             checkoutTime: new Date().toISOString(),
             id: Date.now().toString()
@@ -54,6 +104,7 @@ class CartTracker {
 
         // Clear form
         document.getElementById('cartNumber').value = '';
+        document.getElementById('studentId').value = '';
         document.getElementById('phoneNumber').value = '';
     }
 
@@ -184,7 +235,7 @@ class CartTracker {
                     <div class="cart-info">
                         <div class="cart-number">Cart #${cart.number}</div>
                         <div class="cart-details">
-                            Phone: ${cart.phoneNumber} |
+                            Student ID: ${cart.studentId} | Phone: ${cart.phoneNumber} |
                             Checked out: ${new Date(cart.checkoutTime).toLocaleString()}
                             <span class="time-elapsed ${overdueClass}">
                                 (${elapsed} elapsed)
