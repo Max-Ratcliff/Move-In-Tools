@@ -614,3 +614,76 @@ button:active {
         width: 26px;
     }
 }
+
+/* Sync Status Styling */
+.sync-status {
+    margin-bottom: 15px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.status-indicator.local {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    border: 1px solid #bbdefb;
+}
+
+.status-indicator.synced {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+}
+
+.status-indicator.error {
+    background-color: #ffebee;
+    color: #d32f2f;
+    border: 1px solid #ef5350;
+}
+
+/* Staff Code Input Styling */
+.staff-code-input {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.staff-code-input input {
+    flex: 1;
+}
+
+.connect-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+    width: auto;
+}
+
+.connect-btn:hover {
+    background-color: #218838;
+}
+
+.connect-btn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+@media (max-width: 767px) {
+    .staff-code-input {
+        flex-direction: row;
+        gap: 8px;
+    }
+
+    .connect-btn {
+        flex-shrink: 0;
+    }
+}

@@ -30,6 +30,16 @@
                 <h2>Check Out Cart</h2>
                 <form id="checkoutForm">
                     <div class="form-group">
+                        <label for="staffCode">Staff Code (optional - for cross-shift sharing):</label>
+                        <div class="staff-code-input">
+                            <input type="text" id="staffCode" placeholder="Leave blank for local-only mode">
+                            <button type="button" id="connectBtn" class="connect-btn" style="display: none;">Connect</button>
+                        </div>
+                    </div>
+                    <div class="sync-status" id="syncStatus">
+                        <span class="status-indicator local">📱 Local Mode</span>
+                    </div>
+                    <div class="form-group">
                         <label for="cartNumber">Cart Number:</label>
                         <input type="text" id="cartNumber" required>
                     </div>
@@ -76,6 +86,32 @@
         </div>
     </div>
 
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Firebase configuration - you'll need to replace with your config
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMxa9ZJqi4FxtUttI13Ref5_L2ckvYee8",
+            authDomain: "cartcheckout-7f297.firebaseapp.com",
+            projectId: "cartcheckout-7f297",
+            storageBucket: "cartcheckout-7f297.firebasestorage.app",
+            messagingSenderId: "655051746646",
+            appId: "1:655051746646:web:b541653e58080e6749faf7",
+            measurementId: "G-T6F3BCYJ50"
+            };
+
+
+        // Initialize Firebase
+        window.firebaseApp = initializeApp(firebaseConfig);
+        window.firebaseDb = getFirestore(window.firebaseApp);
+
+        // Initialize cart tracker after Firebase is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            window.cartTracker = new CartTracker();
+        });
+    </script>
     <script src="script.js"></script>
 </body>
 </html>
