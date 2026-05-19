@@ -5,116 +5,106 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Cart Tracker">
+    <meta name="theme-color" content="#007bff">
     <meta name="format-detection" content="telephone=no">
     <title>Cart & Parking Tracker</title>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <link rel="stylesheet" href="styles.css?v=1.1">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="view-carts">
     <div class="container">
-        <h1>Cart & Parking Tracker</h1>
+        <header class="app-header">
+            <h1>Cart & Parking Tracker</h1>
+        </header>
 
-        <!-- View Toggle Controls -->
-        <div class="view-toggle">
-            <button class="toggle-btn active" data-view="carts">
-                <span class="toggle-icon">&#x1F6D2;</span>
+        <nav class="view-toggle" aria-label="Switch between carts and parking">
+            <button type="button" class="toggle-btn active" data-view="carts" aria-pressed="true">
+                <span class="toggle-icon" aria-hidden="true">&#x1F6D2;</span>
                 Carts
             </button>
-            <button class="toggle-btn" data-view="parking">
-                <span class="toggle-icon">&#x1F697;</span>
+            <button type="button" class="toggle-btn" data-view="parking" aria-pressed="false">
+                <span class="toggle-icon" aria-hidden="true">&#x1F697;</span>
                 Parking
             </button>
-        </div>
+        </nav>
 
         <div class="forms-container">
-            <div class="checkout-form" id="cartForm">
-                <h2>Check Out Cart</h2>
+            <section class="checkout-form view-panel" id="cartForm" aria-labelledby="cartFormTitle">
+                <h2 id="cartFormTitle">Check Out Cart</h2>
                 <form id="checkoutForm">
                     <div class="form-group">
-                        <label for="staffCode">Staff Code (optional - for cross-shift sharing):</label>
+                        <label for="staffCode">Staff code <span class="label-hint">(optional — sync across shifts)</span></label>
                         <div class="staff-code-input">
-                            <input type="text" id="staffCode" placeholder="Leave blank for local-only mode">
-                            <button type="button" id="connectBtn" class="connect-btn" style="display: none;">Connect</button>
+                            <input type="text" id="staffCode" placeholder="Leave blank for local-only mode" autocomplete="off" spellcheck="false">
+                            <button type="button" id="connectBtn" class="connect-btn hidden">Connect</button>
                         </div>
                     </div>
                     <div class="sync-status" id="syncStatus">
-                        <span class="status-indicator local">📱 Local Mode</span>
+                        <span class="status-indicator local">Local mode</span>
                     </div>
                     <div class="form-group">
-                        <label for="cartNumber">Cart Number:</label>
-                        <input type="text" id="cartNumber" required>
+                        <label for="cartNumber">Cart number</label>
+                        <input type="text" id="cartNumber" required autocomplete="off">
                     </div>
                     <div class="form-group">
-                        <label for="studentId">Student ID:</label>
-                        <input type="text" id="studentId" required>
+                        <label for="studentId">Student ID</label>
+                        <input type="text" id="studentId" required autocomplete="off">
                     </div>
                     <div class="form-group">
-                        <label for="phoneNumber">Phone Number:</label>
-                        <input type="tel" id="phoneNumber" required>
+                        <label for="phoneNumber">Phone number</label>
+                        <input type="tel" id="phoneNumber" required autocomplete="tel">
                     </div>
-                    <button type="submit">Check Out Cart</button>
+                    <button type="submit" class="submit-btn">Check out cart</button>
                 </form>
-            </div>
+            </section>
 
-            <div class="checkout-form" id="parkingForm">
-                <h2>Issue Parking Permit</h2>
+            <section class="checkout-form view-panel" id="parkingForm" aria-labelledby="parkingFormTitle">
+                <h2 id="parkingFormTitle">Issue parking permit</h2>
                 <form id="parkingFormElement">
                     <div class="form-group">
-                        <label for="licensePlate">License Plate:</label>
-                        <input type="text" id="licensePlate" required>
+                        <label for="licensePlate">License plate</label>
+                        <input type="text" id="licensePlate" required autocomplete="off" autocapitalize="characters">
                     </div>
                     <div class="form-group">
-                        <label for="parkingPhone">Phone Number:</label>
-                        <input type="tel" id="parkingPhone" required>
+                        <label for="parkingPhone">Phone number</label>
+                        <input type="tel" id="parkingPhone" required autocomplete="tel">
                     </div>
-                    <button type="submit">Issue Permit</button>
+                    <button type="submit" class="submit-btn">Issue permit</button>
                 </form>
-            </div>
+            </section>
         </div>
 
-        <div class="checked-out-carts" id="cartsSection">
-            <h2>Checked Out Carts</h2>
-            <div id="cartsList"></div>
-        </div>
+        <section class="checked-out-carts view-panel" id="cartsSection" aria-labelledby="cartsListTitle">
+            <h2 id="cartsListTitle">Checked out carts</h2>
+            <div id="cartsList" class="items-list" aria-live="polite"></div>
+        </section>
 
-        <div class="checked-out-carts" id="parkingSection">
-            <h2>Active Parking Permits</h2>
-            <div id="parkingList"></div>
-        </div>
+        <section class="checked-out-carts view-panel" id="parkingSection" aria-labelledby="parkingListTitle">
+            <h2 id="parkingListTitle">Active parking permits</h2>
+            <div id="parkingList" class="items-list" aria-live="polite"></div>
+        </section>
 
-        <div class="alerts" id="alerts">
-            <!-- Alert messages will appear here -->
-        </div>
+        <div class="alerts" id="alerts" aria-live="assertive"></div>
     </div>
 
-    <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { firebaseConfig, isFirebaseConfigured } from './firebase-config.js';
 
-        // Firebase configuration - you'll need to replace with your config
-        const firebaseConfig = {
-            apiKey: "AIzaSyAMxa9ZJqi4FxtUttI13Ref5_L2ckvYee8",
-            authDomain: "cartcheckout-7f297.firebaseapp.com",
-            projectId: "cartcheckout-7f297",
-            storageBucket: "cartcheckout-7f297.firebasestorage.app",
-            messagingSenderId: "655051746646",
-            appId: "1:655051746646:web:b541653e58080e6749faf7",
-            measurementId: "G-T6F3BCYJ50"
-            };
+        window.isFirebaseConfigured = isFirebaseConfigured();
 
+        if (window.isFirebaseConfigured) {
+            window.firebaseApp = initializeApp(firebaseConfig);
+            window.firebaseDb = getFirestore(window.firebaseApp);
+        }
 
-        // Initialize Firebase
-        window.firebaseApp = initializeApp(firebaseConfig);
-        window.firebaseDb = getFirestore(window.firebaseApp);
-
-        // Initialize cart tracker after Firebase is ready
         document.addEventListener('DOMContentLoaded', () => {
             window.cartTracker = new CartTracker();
         });
     </script>
-    <script src="script.js?v=1.1"></script>
+    <script src="script.js"></script>
 </body>
 </html>

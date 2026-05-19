@@ -18,7 +18,7 @@ class CartTracker {
         this.startTimer();
         this.renderCarts();
         this.renderParking();
-        this.updateViewToggle();
+        this.setView(this.currentView);
         this.updateSyncStatus();
     }
 
@@ -48,18 +48,16 @@ class CartTracker {
         const connectBtn = document.getElementById('connectBtn');
         const staffCode = e.target.value.trim().toLowerCase();
 
-        // Update the input field to show lowercase version
         e.target.value = staffCode;
 
         if (staffCode && staffCode !== this.staffCode) {
             connectBtn.textContent = 'Connect';
-            connectBtn.style.display = 'block';
+            connectBtn.classList.remove('hidden');
         } else if (!staffCode && this.staffCode) {
-            // Code was deleted, show button to switch to local mode
-            connectBtn.textContent = 'Go Local';
-            connectBtn.style.display = 'block';
+            connectBtn.textContent = 'Go local';
+            connectBtn.classList.remove('hidden');
         } else {
-            connectBtn.style.display = 'none';
+            connectBtn.classList.add('hidden');
         }
     }
 
@@ -70,20 +68,20 @@ class CartTracker {
         const connectBtn = document.getElementById('connectBtn');
         const newCode = staffCodeInput.value.trim().toLowerCase();
 
-        if (connectBtn.textContent === 'Go Local') {
+        if (connectBtn.textContent === 'Go local') {
             // Switch to local mode
             connectBtn.disabled = true;
             connectBtn.textContent = 'Switching...';
 
             try {
                 await this.handleStaffCodeChange({ target: { value: '' } });
-                connectBtn.style.display = 'none';
+                connectBtn.classList.add('hidden');
                 connectBtn.disabled = false;
-                connectBtn.textContent = 'Go Local';
+                connectBtn.textContent = 'Go local';
             } catch (error) {
                 console.error('Failed to switch to local mode:', error);
                 connectBtn.disabled = false;
-                connectBtn.textContent = 'Go Local';
+                connectBtn.textContent = 'Go local';
             }
             return;
         }
@@ -93,13 +91,17 @@ class CartTracker {
             return;
         }
 
-        // Disable button during connection
+        if (!window.isFirebaseConfigured) {
+            alert('Firebase is not configured yet. Copy .env.example to .env and add your Firebase values, then restart.');
+            return;
+        }
+
         connectBtn.disabled = true;
         connectBtn.textContent = 'Connecting...';
 
         try {
             await this.handleStaffCodeChange({ target: { value: newCode } });
-            connectBtn.style.display = 'none';
+            connectBtn.classList.add('hidden');
             connectBtn.disabled = false;
             connectBtn.textContent = 'Connect';
         } catch (error) {
@@ -111,43 +113,19 @@ class CartTracker {
     }
 
     handleViewToggle(e) {
-        const view = e.currentTarget.dataset.view;
-        this.currentView = view;
-
-        // Update button states
-        document.querySelectorAll('.toggle-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        e.currentTarget.classList.add('active');
-
-        this.updateViewToggle();
+        this.setView(e.currentTarget.dataset.view);
     }
 
-    updateViewToggle() {
-        const cartForm = document.getElementById('cartForm');
-        const parkingForm = document.getElementById('parkingForm');
-        const cartsSection = document.getElementById('cartsSection');
-        const parkingSection = document.getElementById('parkingSection');
-        const formsContainer = document.querySelector('.forms-container');
+    setView(view) {
+        this.currentView = view;
+        document.body.classList.remove('view-carts', 'view-parking');
+        document.body.classList.add(view === 'parking' ? 'view-parking' : 'view-carts');
 
-        // Hide all sections first
-        [cartForm, parkingForm, cartsSection, parkingSection].forEach(el => {
-            el.style.display = 'none';
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            const isActive = btn.dataset.view === view;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
         });
-
-        // Show based on current view and add appropriate class
-        switch(this.currentView) {
-            case 'carts':
-                cartForm.style.display = 'block';
-                cartsSection.style.display = 'block';
-                formsContainer.classList.add('single-form');
-                break;
-            case 'parking':
-                parkingForm.style.display = 'block';
-                parkingSection.style.display = 'block';
-                formsContainer.classList.add('single-form');
-                break;
-        }
     }
 
     async handleStaffCodeChange(e) {
@@ -177,14 +155,14 @@ class CartTracker {
     }
 
     async switchToOnlineMode() {
-        if (!window.firebaseDb) {
-            this.updateSyncStatus('error', '❌ Firebase not available');
+        if (!window.isFirebaseConfigured || !window.firebaseDb) {
+            this.updateSyncStatus('error', 'Firebase not configured — add FIREBASE_* vars to .env');
             return;
         }
 
         try {
             this.isOnlineMode = true;
-            this.updateSyncStatus('synced', `🌐 Synced: ${this.staffCode}`);
+            this.updateSyncStatus('synced', `Synced: ${this.staffCode}`);
 
             // Load carts from Firebase and start real-time sync
             await this.loadFromFirebase();
@@ -192,21 +170,21 @@ class CartTracker {
 
         } catch (error) {
             console.error('Failed to switch to online mode:', error);
-            this.updateSyncStatus('error', '❌ Sync failed');
+            this.updateSyncStatus('error', 'Sync failed');
             this.isOnlineMode = false;
         }
     }
 
     switchToLocalMode() {
         this.isOnlineMode = false;
-        this.updateSyncStatus('local', '📱 Local Mode');
+        this.updateSyncStatus('local', 'Local mode');
 
-        // Load from localStorage
         this.loadFromStorage();
         this.renderCarts();
+        this.renderParking();
     }
 
-    updateSyncStatus(type = 'local', message = '📱 Local Mode') {
+    updateSyncStatus(type = 'local', message = 'Local mode') {
         const statusElement = document.getElementById('syncStatus');
         const indicator = statusElement.querySelector('.status-indicator');
 
@@ -250,7 +228,7 @@ class CartTracker {
         document.getElementById('phoneNumber').value = '';
     }
 
-    handleParkingIssue(e) {
+    async handleParkingIssue(e) {
         e.preventDefault();
 
         const licensePlate = document.getElementById('licensePlate').value.trim().toUpperCase();
@@ -261,7 +239,6 @@ class CartTracker {
             return;
         }
 
-        // Check if permit already exists for this license plate
         if (this.parkingPermits.find(permit => permit.licensePlate === licensePlate)) {
             alert('Parking permit already issued for this license plate');
             return;
@@ -275,10 +252,9 @@ class CartTracker {
         };
 
         this.parkingPermits.push(permit);
-        this.saveToStorage();
+        await this.saveData();
         this.renderParking();
 
-        // Clear form
         document.getElementById('licensePlate').value = '';
         document.getElementById('parkingPhone').value = '';
     }
@@ -291,10 +267,10 @@ class CartTracker {
         this.clearAlerts();
     }
 
-    handlePermitRevoke(permitId) {
+    async handlePermitRevoke(permitId) {
         this.parkingPermits = this.parkingPermits.filter(permit => permit.id !== permitId);
         this.alertedPermits.delete(permitId);
-        this.saveToStorage();
+        await this.saveData();
         this.renderParking();
         this.clearAlerts();
     }
@@ -527,15 +503,16 @@ class CartTracker {
         try {
             const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
 
-            const cartsDoc = doc(window.firebaseDb, 'locations', this.staffCode);
-            await setDoc(cartsDoc, {
+            const locationDoc = doc(window.firebaseDb, 'locations', this.staffCode);
+            await setDoc(locationDoc, {
                 carts: this.carts,
+                parkingPermits: this.parkingPermits,
                 lastUpdated: new Date().toISOString()
             }, { merge: true });
 
         } catch (error) {
             console.error('Failed to save to Firebase:', error);
-            this.updateSyncStatus('error', '❌ Save failed');
+            this.updateSyncStatus('error', 'Save failed');
         }
     }
 
@@ -545,18 +522,20 @@ class CartTracker {
         try {
             const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
 
-            const cartsDoc = doc(window.firebaseDb, 'locations', this.staffCode);
-            const docSnap = await getDoc(cartsDoc);
+            const locationDoc = doc(window.firebaseDb, 'locations', this.staffCode);
+            const docSnap = await getDoc(locationDoc);
 
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 this.carts = data.carts || [];
+                this.parkingPermits = data.parkingPermits || [];
                 this.renderCarts();
+                this.renderParking();
             }
 
         } catch (error) {
             console.error('Failed to load from Firebase:', error);
-            this.updateSyncStatus('error', '❌ Load failed');
+            this.updateSyncStatus('error', 'Load failed');
         }
     }
 
@@ -565,19 +544,21 @@ class CartTracker {
 
         import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js')
             .then(({ doc, onSnapshot }) => {
-                const cartsDoc = doc(window.firebaseDb, 'locations', this.staffCode);
+                const locationDoc = doc(window.firebaseDb, 'locations', this.staffCode);
 
-                this.firebaseUnsubscribe = onSnapshot(cartsDoc, (docSnap) => {
+                this.firebaseUnsubscribe = onSnapshot(locationDoc, (docSnap) => {
                     if (docSnap.exists()) {
                         const data = docSnap.data();
                         this.carts = data.carts || [];
+                        this.parkingPermits = data.parkingPermits || [];
                         this.renderCarts();
+                        this.renderParking();
                     }
                 });
             })
             .catch(error => {
                 console.error('Failed to start Firebase sync:', error);
-                this.updateSyncStatus('error', '❌ Sync failed');
+                this.updateSyncStatus('error', 'Sync failed');
             });
     }
 
@@ -607,12 +588,11 @@ class CartTracker {
         if (savedStaffCode) {
             this.staffCode = savedStaffCode;
             document.getElementById('staffCode').value = savedStaffCode;
-            // Use setTimeout to ensure DOM is ready and Firebase is initialized
-            setTimeout(() => {
-                this.switchToOnlineMode();
-            }, 100);
+            if (window.isFirebaseConfigured) {
+                setTimeout(() => this.switchToOnlineMode(), 100);
+            } else {
+                this.updateSyncStatus('error', 'Saved staff code — add FIREBASE_* vars to .env to sync');
+            }
         }
     }
 }
-
-// CartTracker will be initialized by Firebase module in index.html

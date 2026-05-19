@@ -1,5 +1,8 @@
 node_modules/
 .env
+.env.*
+!.env.example
+firebase-config.js
 .env.local
 .env.development.local
 .env.test.local

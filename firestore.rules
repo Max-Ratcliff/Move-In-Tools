@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+  // Staff share data by agreeing on a staff code (document ID).
+  // For a small internal tool, open read/write is common; tighten if you add auth later.
+    match /locations/{staffCode} {
+      allow read, write: if true;
+    }
+  }
+}

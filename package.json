@@ -4,9 +4,11 @@
   "description": "A simple web interface for tracking cart checkouts with 30-minute alerts",
   "main": "index.html",
   "scripts": {
+    "predev": "node scripts/generate-firebase-config.mjs",
     "dev": "live-server --port=3000 --host=localhost --open=/",
+    "prestart": "node scripts/generate-firebase-config.mjs",
     "start": "live-server --port=3000 --host=localhost",
-    "build": "echo 'Build complete - static files ready for deployment'",
+    "build": "node scripts/generate-firebase-config.mjs",
     "preview": "live-server --port=4173 --host=localhost"
   },
   "keywords": [
