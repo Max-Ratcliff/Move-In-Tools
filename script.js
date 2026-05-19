@@ -1,3 +1,50 @@
+const THEME_STORAGE_KEY = 'theme';
+
+function getPreferredTheme() {
+    const stored = localStorage.getItem(THEME_STORAGE_KEY);
+    if (stored === 'light' || stored === 'dark') return stored;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    const meta = document.getElementById('themeColorMeta');
+    if (meta) {
+        meta.content = getComputedStyle(document.documentElement).getPropertyValue('--theme-meta').trim();
+    }
+    const toggle = document.getElementById('themeToggle');
+    if (toggle) {
+        const isDark = theme === 'dark';
+        toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+        toggle.title = isDark ? 'Light mode' : 'Dark mode';
+    }
+}
+
+function initThemeToggle() {
+    applyTheme(getPreferredTheme());
+
+    const toggle = document.getElementById('themeToggle');
+    if (!toggle) return;
+
+    toggle.addEventListener('click', () => {
+        const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        localStorage.setItem(THEME_STORAGE_KEY, next);
+        applyTheme(next);
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initThemeToggle);
+} else {
+    initThemeToggle();
+}
+
+const SYNC_PILL_ICONS = {
+    local: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/></svg>`,
+    synced: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 9 15 9"/></svg>`,
+    error: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`
+};
+
 class CartTracker {
     constructor() {
         this.carts = [];
@@ -185,11 +232,15 @@ class CartTracker {
     }
 
     updateSyncStatus(type = 'local', message = 'Local mode') {
-        const statusElement = document.getElementById('syncStatus');
-        const indicator = statusElement.querySelector('.status-indicator');
+        const pill = document.querySelector('#syncStatus .status-pill');
+        if (!pill) return;
 
-        indicator.className = `status-indicator ${type}`;
-        indicator.textContent = message;
+        const iconEl = pill.querySelector('.status-pill__icon');
+        const textEl = pill.querySelector('.status-pill__text');
+
+        pill.className = `status-pill status-pill--${type}`;
+        if (iconEl) iconEl.innerHTML = SYNC_PILL_ICONS[type] || SYNC_PILL_ICONS.local;
+        if (textEl) textEl.textContent = message;
     }
 
     async handleCheckout(e) {
@@ -451,8 +502,7 @@ class CartTracker {
         const elapsed = this.calculateElapsedTime(permit.issueTime);
 
         const alertDiv = document.createElement('div');
-        alertDiv.className = 'alert';
-        alertDiv.style.backgroundColor = '#ff8c00';
+        alertDiv.className = 'alert alert-parking';
         alertDiv.innerHTML = `
             <strong>PARKING PERMIT EXPIRED!</strong><br>
             ${permit.licensePlate} has been parked for ${elapsed}<br>

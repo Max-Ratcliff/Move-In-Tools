@@ -1,110 +1,155 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Cart Tracker">
-    <meta name="theme-color" content="#007bff">
-    <meta name="format-detection" content="telephone=no">
-    <title>Cart & Parking Tracker</title>
-    <link rel="icon" href="favicon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="favicon.svg">
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Cart Tracker" />
+  <meta name="theme-color" content="#f4f6f9" id="themeColorMeta" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>Cart & Parking Tracker</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="favicon.svg" />
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    (function () {
+      var stored = localStorage.getItem('theme');
+      var theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
 </head>
+
 <body class="view-carts">
-    <div class="container">
-        <header class="app-header">
-            <h1>Cart & Parking Tracker</h1>
-        </header>
+  <div class="container">
+    <header class="app-header">
+      <div class="header-bar">
+        <h1>Cart & Parking Tracker</h1>
+        <button type="button" id="themeToggle" class="theme-toggle" aria-label="Switch to dark mode" title="Toggle theme">
+          <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+          </svg>
+          <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        </button>
+      </div>
+    </header>
 
-        <nav class="view-toggle" aria-label="Switch between carts and parking">
-            <button type="button" class="toggle-btn active" data-view="carts" aria-pressed="true">
-                <span class="toggle-icon" aria-hidden="true">&#x1F6D2;</span>
-                Carts
-            </button>
-            <button type="button" class="toggle-btn" data-view="parking" aria-pressed="false">
-                <span class="toggle-icon" aria-hidden="true">&#x1F697;</span>
-                Parking
-            </button>
-        </nav>
+    <nav class="view-toggle" aria-label="Switch between carts and parking">
+      <button type="button" class="toggle-btn active" data-view="carts" aria-pressed="true">
+        <span class="toggle-icon" aria-hidden="true">&#x1F6D2;</span>
+        Carts
+      </button>
+      <button type="button" class="toggle-btn" data-view="parking" aria-pressed="false">
+        <span class="toggle-icon" aria-hidden="true">&#x1F697;</span>
+        Parking
+      </button>
+    </nav>
 
-        <div class="forms-container">
-            <section class="checkout-form view-panel" id="cartForm" aria-labelledby="cartFormTitle">
-                <h2 id="cartFormTitle">Check Out Cart</h2>
-                <form id="checkoutForm">
-                    <div class="form-group">
-                        <label for="staffCode">Staff code <span class="label-hint">(optional — sync across shifts)</span></label>
-                        <div class="staff-code-input">
-                            <input type="text" id="staffCode" placeholder="Leave blank for local-only mode" autocomplete="off" spellcheck="false">
-                            <button type="button" id="connectBtn" class="connect-btn hidden">Connect</button>
-                        </div>
-                    </div>
-                    <div class="sync-status" id="syncStatus">
-                        <span class="status-indicator local">Local mode</span>
-                    </div>
-                    <div class="form-group">
-                        <label for="cartNumber">Cart number</label>
-                        <input type="text" id="cartNumber" required autocomplete="off">
-                    </div>
-                    <div class="form-group">
-                        <label for="studentId">Student ID</label>
-                        <input type="text" id="studentId" required autocomplete="off">
-                    </div>
-                    <div class="form-group">
-                        <label for="phoneNumber">Phone number</label>
-                        <input type="tel" id="phoneNumber" required autocomplete="tel">
-                    </div>
-                    <button type="submit" class="submit-btn">Check out cart</button>
-                </form>
-            </section>
+    <div class="forms-container">
+      <section class="checkout-form view-panel" id="cartForm" aria-labelledby="cartFormTitle">
+        <h2 id="cartFormTitle">Check Out Cart</h2>
+        <form id="checkoutForm">
+          <div class="form-group staff-sync-group">
+            <div class="staff-code-label-row">
+              <label for="staffCode">Staff code</label>
+              <details class="sync-info">
+                <summary class="sync-info-btn" aria-label="What does staff code sync do?">
+                  <span class="sync-info-icon" aria-hidden="true">i</span>
+                </summary>
+                <div class="sync-info-panel">
+                  <p>
+                    Enter a shared code (e.g. <strong>day1</strong>) so every
+                    device using the same code sees the same cart list in real
+                    time. Leave blank to keep checkouts on this browser only.
+                    Tap <strong>Connect</strong> after changing the code.
+                  </p>
+                </div>
+              </details>
+            </div>
+            <div class="staff-code-input">
+              <input type="text" id="staffCode" placeholder="Leave blank for local-only mode" autocomplete="off"
+                spellcheck="false" />
+              <button type="button" id="connectBtn" class="connect-btn hidden">
+                Connect
+              </button>
+            </div>
+            <div class="sync-status" id="syncStatus">
+              <span class="status-pill status-pill--local">
+                <span class="status-pill__icon" aria-hidden="true"></span>
+                <span class="status-pill__text">Local mode</span>
+              </span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="cartNumber">Cart number</label>
+            <input type="text" id="cartNumber" required autocomplete="off" />
+          </div>
+          <div class="form-group">
+            <label for="studentId">Student ID</label>
+            <input type="text" id="studentId" required autocomplete="off" />
+          </div>
+          <div class="form-group">
+            <label for="phoneNumber">Phone number</label>
+            <input type="tel" id="phoneNumber" required autocomplete="tel" />
+          </div>
+          <button type="submit" class="submit-btn">Check out cart</button>
+        </form>
+      </section>
 
-            <section class="checkout-form view-panel" id="parkingForm" aria-labelledby="parkingFormTitle">
-                <h2 id="parkingFormTitle">Issue parking permit</h2>
-                <form id="parkingFormElement">
-                    <div class="form-group">
-                        <label for="licensePlate">License plate</label>
-                        <input type="text" id="licensePlate" required autocomplete="off" autocapitalize="characters">
-                    </div>
-                    <div class="form-group">
-                        <label for="parkingPhone">Phone number</label>
-                        <input type="tel" id="parkingPhone" required autocomplete="tel">
-                    </div>
-                    <button type="submit" class="submit-btn">Issue permit</button>
-                </form>
-            </section>
-        </div>
-
-        <section class="checked-out-carts view-panel" id="cartsSection" aria-labelledby="cartsListTitle">
-            <h2 id="cartsListTitle">Checked out carts</h2>
-            <div id="cartsList" class="items-list" aria-live="polite"></div>
-        </section>
-
-        <section class="checked-out-carts view-panel" id="parkingSection" aria-labelledby="parkingListTitle">
-            <h2 id="parkingListTitle">Active parking permits</h2>
-            <div id="parkingList" class="items-list" aria-live="polite"></div>
-        </section>
-
-        <div class="alerts" id="alerts" aria-live="assertive"></div>
+      <section class="checkout-form view-panel" id="parkingForm" aria-labelledby="parkingFormTitle">
+        <h2 id="parkingFormTitle">Issue parking permit</h2>
+        <form id="parkingFormElement">
+          <div class="form-group">
+            <label for="licensePlate">License plate</label>
+            <input type="text" id="licensePlate" required autocomplete="off" autocapitalize="characters" />
+          </div>
+          <div class="form-group">
+            <label for="parkingPhone">Phone number</label>
+            <input type="tel" id="parkingPhone" required autocomplete="tel" />
+          </div>
+          <button type="submit" class="submit-btn">Issue permit</button>
+        </form>
+      </section>
     </div>
 
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-        import { firebaseConfig, isFirebaseConfigured } from './firebase-config.js';
+    <section class="checked-out-carts view-panel" id="cartsSection" aria-labelledby="cartsListTitle">
+      <h2 id="cartsListTitle">Checked out carts</h2>
+      <div id="cartsList" class="items-list" aria-live="polite"></div>
+    </section>
 
-        window.isFirebaseConfigured = isFirebaseConfigured();
+    <section class="checked-out-carts view-panel" id="parkingSection" aria-labelledby="parkingListTitle">
+      <h2 id="parkingListTitle">Active parking permits</h2>
+      <div id="parkingList" class="items-list" aria-live="polite"></div>
+    </section>
 
-        if (window.isFirebaseConfigured) {
-            window.firebaseApp = initializeApp(firebaseConfig);
-            window.firebaseDb = getFirestore(window.firebaseApp);
-        }
+    <div class="alerts" id="alerts" aria-live="assertive"></div>
+  </div>
 
-        document.addEventListener('DOMContentLoaded', () => {
-            window.cartTracker = new CartTracker();
-        });
-    </script>
-    <script src="script.js"></script>
+  <script type="module">
+    import {initializeApp} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import {getFirestore} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import {
+      firebaseConfig,
+      isFirebaseConfigured,
+    } from "./firebase-config.js";
+
+    window.isFirebaseConfigured = isFirebaseConfigured();
+
+    if (window.isFirebaseConfigured) {
+      window.firebaseApp = initializeApp(firebaseConfig);
+      window.firebaseDb = getFirestore(window.firebaseApp);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      window.cartTracker = new CartTracker();
+    });
+  </script>
+  <script src="script.js"></script>
 </body>
+
 </html>
